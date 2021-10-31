@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
 const { MongoClient } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 const cors = require('cors')
-port = 5000;
+port = process.env.PORT || 5000;
 
 require('dotenv').config();
 
@@ -37,7 +38,56 @@ async function run() {
             console.log('hitting the data', service);
             const result = await packageCollection.insertOne(service);
             res.json(result);
+        });
+
+        ///booking
+
+        app.post('/booking', async (req, res) => {
+            const service = req.body;
+            console.log('hitting the data', service);
+            const result = await bookingCollection.insertOne(service);
+            res.json(result);
         })
+
+
+        //Get all data
+        app.get('/package', async (rq, res) => {
+            const cursor = packageCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+
+        });
+        //Get all  booking data
+        app.get('/myBooking', async (rq, res) => {
+            const cursor = bookingCollection.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+
+        });
+        //Updated
+        //GET single Service API
+        app.get('/package/updatePackage/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const package = await packageCollection.findOne(query);
+            res.json(package);
+        });
+        // app.put('/manageAllPackage')
+
+        //Delete
+        app.delete('/package/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await packageCollection.deleteOne(query);
+            res.json(result);
+        });
+        // booking Delete
+        app.delete('/myBooking/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await bookingCollection.deleteOne(query);
+            res.json(result);
+        });
 
 
     }
